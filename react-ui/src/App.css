@@ -1,0 +1,83 @@
+.App {
+  font-family: 'Roboto';
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  text-align: center;
+  margin: auto;
+}
+
+.Instructions {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: left;
+  margin: auto;
+}
+.Instructions img{
+  align-self: center;
+}
+
+
+.App-header {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  gap: 2vh;
+  justify-content: center;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.text-input{
+  display: flex;
+  flex-direction: column;
+  align-self: center;
+  width: 75%;
+  gap: 1vh;
+  padding-top: 20px;
+  text-align: center;
+}
+
+@media screen and (max-width:800px) {
+  .Instructions {
+    width: 95%;
+  }
+  .Instructions img {
+    width: 70%;
+  }
+}
+
+@media screen and (max-width: 350px) {
+  .Instructions img {
+    width: 100%;
+  }
+}
+
+.quiz-header {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 90vh;
+  gap: 2vh;
+  text-align: center;
+}
+
+.questions {
+  display: flex;
+  margin: auto;
+  justify-content: center;
+
+  width: 40%;
+}
+
+.answers {
+
+  /* display:flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center; */
+  align-self: center;
+  padding: 5px;
+}
