@@ -9,6 +9,21 @@ import exampleimage1 from './images/examplephoto1.png';
 import exampleimage2 from './images/examplephoto2.png';
 import Alert from '@mui/material/Alert';
 
+import { initializeApp } from "firebase/app";
+import { getFirestore, doc, getDoc } from 'firebase/firestore';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCneprZKzkDp_vh7UarQIw4Id-IJAMCZEk",
+  authDomain: "bam-nvim.firebaseapp.com",
+  projectId: "bam-nvim",
+  storageBucket: "bam-nvim.appspot.com",
+  messagingSenderId: "994867030843",
+  appId: "1:994867030843:web:f9739ee4c9fc8d2855651e",
+  measurementId: "G-HWNR0XNDBL"
+};
+
+const firebaseApp = initializeApp(firebaseConfig)
+
 function App() {
   let navigate = useNavigate();
   const [username, setUsername] = useState("");
@@ -18,54 +33,35 @@ function App() {
 
   const [open, setOpen] = useState(false);
 
-  /*
-  const fetchData = useCallback(() => {
-    setIsFetching(true);
-    fetch(`/api?username=${username}&score=${score}&time=${time}`)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`status ${response.status}`);
-        }
-        return response.json();
-      })
-      .then(json => {
-        setMessage(json.message);
-        setIsFetching(false);
-      }).catch(e => {
-        setMessage(`API call failed: ${e}`);
-        setIsFetching(false);
-      })
-  }, [username, score, time]);
-  */
+  const db = getFirestore(firebaseApp);
+  const docRef = username && doc(db, 'users', username);
 
-  const fetchData = useCallback(() => {
+  // useEffect(() => {
+  //   const fetchUser = async () => {
+  //     const docSnap = await getDoc(docRef);
+  //     const user = docSnap.data()
+  
+  //     console.log({user, docSnap});
+  //   }
+  
+  //   fetchUser();
+  // }, []);
+
+  const fetchData = useCallback(async () => {
     setOpen(false);
     setIsFetching(true);
-    fetch(`/api?username=${username}`)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`status ${response.status}`);
-        }
-        return response.json();
-      })
-      .then(json => {
-        setMessage(json.message);
-        setIsFetching(false);
-        setOpen(true);
-        return json.message;
-      })
-      .then(message => {
-        if (message) {
-          console.log("f: " + message);
-        }
-        else {
-          navigate("../quiz", { replace: true, state: { username: username } });
-        }
-      })
-      .catch(e => {
-        setMessage(`API call failed: ${e}`);
-        setIsFetching(false);
-      })
+    const docSnap = await getDoc(docRef);
+    const user = docSnap.data()
+
+    setIsFetching(false);
+    setOpen(true);
+
+    if (!user) {
+      console.log(`No user found with username: ${username}`)
+      return;
+    }
+
+    navigate("../quiz", { replace: true, state: { username: username } });
   }, [username]);
 
   const handleKeyDown = (e) => {
