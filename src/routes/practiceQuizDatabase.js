@@ -1,19 +1,19 @@
-import pquizq1 from '../pQuizPics/pQuizQ1.png';
-import pquizq2 from '../pQuizPics/pQuizQ2.png';
-import pquizq3 from '../pQuizPics/pQuizQ3.png';
+import pquizq1 from '../assets/pQuizPics/pQuizQ1.png';
+import pquizq2 from '../assets/pQuizPics/pQuizQ2.png';
+import pquizq3 from '../assets/pQuizPics/pQuizQ3.png';
 
-import pquizq1a1 from '../pQuizPics/pQuizQ1A1.png';
-import pquizq1a2 from '../pQuizPics/pQuizQ1A2.png';
-import pquizq1a3 from '../pQuizPics/pQuizQ1A3.png';
-import pquizq1a4 from '../pQuizPics/pQuizQ1A4.png';
-import pquizq2a1 from '../pQuizPics/pQuizQ2A1.png';
-import pquizq2a2 from '../pQuizPics/pQuizQ2A2.png';
-import pquizq2a3 from '../pQuizPics/pQuizQ2A3.png';
-import pquizq2a4 from '../pQuizPics/pQuizQ2A4.png';
-import pquizq3a1 from '../pQuizPics/pQuizQ3A1.png';
-import pquizq3a2 from '../pQuizPics/pQuizQ3A2.png';
-import pquizq3a3 from '../pQuizPics/pQuizQ3A3.png';
-import pquizq3a4 from '../pQuizPics/pQuizQ3A4.png';
+import pquizq1a1 from '../assets/pQuizPics/pQuizQ1A1.png';
+import pquizq1a2 from '../assets/pQuizPics/pQuizQ1A2.png';
+import pquizq1a3 from '../assets/pQuizPics/pQuizQ1A3.png';
+import pquizq1a4 from '../assets/pQuizPics/pQuizQ1A4.png';
+import pquizq2a1 from '../assets/pQuizPics/pQuizQ2A1.png';
+import pquizq2a2 from '../assets/pQuizPics/pQuizQ2A2.png';
+import pquizq2a3 from '../assets/pQuizPics/pQuizQ2A3.png';
+import pquizq2a4 from '../assets/pQuizPics/pQuizQ2A4.png';
+import pquizq3a1 from '../assets/pQuizPics/pQuizQ3A1.png';
+import pquizq3a2 from '../assets/pQuizPics/pQuizQ3A2.png';
+import pquizq3a3 from '../assets/pQuizPics/pQuizQ3A3.png';
+import pquizq3a4 from '../assets/pQuizPics/pQuizQ3A4.png';
 
 const pquizqas = {
     pquizq1a1,
