@@ -1,9 +1,17 @@
 import { db } from '../config/firebase'
-import { doc, getDoc } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, query, setDoc, where } from 'firebase/firestore';
+
+const usersCollectionRef = collection(db, 'users');
 
 export async function getUser(username) {
-  const docRef = username && doc(db, 'users', username);
-  const docSnap = await getDoc(docRef);
-  const user = docSnap.data()
+  if (!username) return null;
+
+  const userQuery = query(usersCollectionRef, where('username', '==', username))
+  const userSnap = await getDocs(userQuery);
+  const user = userSnap.docs[0].data()
   return user;
+}
+
+export async function postAnswers(username, answers) {
+  
 }

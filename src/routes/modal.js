@@ -10,8 +10,8 @@ const Modal = props => {
 
   return (
     <div className = "modal">
-<img src={greyScreen} className="modal"/>
-</div>
+      <img src={greyScreen} className="modal"/>
+    </div>
   );
 };
 
