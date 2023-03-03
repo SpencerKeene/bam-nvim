@@ -9,37 +9,19 @@ import Alert from '@mui/material/Alert';
 import exampleimage1 from './assets/exampleImages/examplephoto1.png';
 import exampleimage2 from './assets/exampleImages/examplephoto2.png';
 
-import { getUser } from './utils/firebase'
+import { useGetUser } from './hooks/firebase'
 
 function App() {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
+  const [user, error, loading, refresh] = useGetUser(username);
 
-  const [message, setMessage] = useState(null);
-  const [isFetching, setIsFetching] = useState(false);
-
-  async function fetchData() {
-    setIsFetching(true);
-    const user = await getUser(username).catch((e) => {
-      setIsFetching(false);
-      setMessage('Error fetching user info')
-    });
-
-    setIsFetching(false)
-
-    if (!user) {
-      const newMessage = `Invalid access code: ${username}`;
-      setMessage(newMessage);
-      return;
-    }
-    
-    navigate("../quiz", { state: { username: username } });
-  }
+  if (user) navigate("../quiz", { state: { username: user.username } });
 
   const handleKeyDown = (e) => {
     // if user presses Enter without pressing Shift
     if (e.keyCode === 13 && !e.shiftKey) {
-      fetchData();
+      refresh();
       e.preventDefault();
     }
   }
@@ -81,16 +63,16 @@ function App() {
             </LoadingButton>
             <LoadingButton
               variant="contained"
-              loading={isFetching}
+              loading={loading}
               sx={{ textTransform: "none" }}
               disableElevation
-              onClick={fetchData}
+              onClick={refresh}
               disabled={!username}
             >
               Begin Test
             </LoadingButton>
 
-            {message && <Alert severity="error">{message}</Alert>}
+            {error && <Alert severity="error">{error}</Alert>}
 
           </div>
         </div>
