@@ -16,7 +16,7 @@ function App() {
   const [accessCode, setAccessCode] = useState("");
   const [user, error, loading, refresh] = useGetUser(accessCode);
 
-  if (user) navigate("../quiz", { state: { username: user.username } });
+  if (user) navigate("../quiz", { state: { accessCode: user.accessCode } });
 
   const handleKeyDown = (e) => {
     // if user presses Enter without pressing Shift

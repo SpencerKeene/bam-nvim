@@ -5,19 +5,27 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import AddIcon from '@mui/icons-material/Add';
-import LinearProgress from '@mui/material/LinearProgress';
 
 import qArray from './quizDatabase.js';
+import { useCountdownTimer } from '../components/CountdownTimer';
+
+const QUESTION_TIMER_DURATION = 30000 // milliseconds
+const MODAL_TIMER_DURATION = 1000 // milliseconds
 
 export default function Quiz() {
   let navigate = useNavigate();
   const location = useLocation();
 
   const [count, setCount] = useState(0);
-  const [counter, setCounter] = useState(30);
   const [ansArray, setAnsArray] = useState([]);
+  const [timerComponent, startTimer, stopTimer] = useCountdownTimer(QUESTION_TIMER_DURATION, onTimerEnd);
 
   const [username, setUsername] = useState("admin");
+  
+  useEffect(() => {
+    startTimer();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   //Renders first question's answers
   useEffect(() => {
@@ -35,7 +43,10 @@ export default function Quiz() {
   //modal toggle
   const toggle = () => {
     setShow(true);
-    setTimeout(() => setShow(false), 1000);
+    setTimeout(() => {
+      setShow(false);
+      startTimer();
+    }, MODAL_TIMER_DURATION);
   };
 
 
@@ -70,14 +81,14 @@ export default function Quiz() {
       sendData();
       navigate("../complete"); //quiz is completed
     }
-    setCounter(30); //resets timer
+    stopTimer();
   }
 
   //testButton to skip to final few questions
   const testButton = () => {
-    console.log(username)
+    console.log('test button pressed, skipping questions');
     setCount(78);
-    setCounter(30);
+    startTimer();
   }
 
 
@@ -111,27 +122,18 @@ export default function Quiz() {
   // }, [username, ansArray]);
 
   async function sendData() {
-
   }
 
-
-  //Timer 
-  React.useEffect(() => {
-    const timer =
-      counter > 0 && setInterval(() => setCounter(counter - 1), 1000);
-
-    if (counter <= 0) {
-      toggle();
-      setCounter(30);
-      setCount(count + 1);
-      ansStorer();
-      handleClick(false);
-    }
-    return () => clearInterval(timer);
-  }, [counter]);
+  function onTimerEnd() {
+    toggle();
+    setCount(count + 1);
+    ansStorer();
+    handleClick(false);
+  }
 
   return (
     <div className='quiz'>
+      <button onClick={testButton} style={{display: 'none'}} />
 
       <Modal
         open={show}
@@ -153,25 +155,27 @@ export default function Quiz() {
         </Box>
       </Modal>
 
-      <div className='quiz-header'>
-        <Box sx={{ width: '100%' }}>
-          <LinearProgress variant="determinate" color="inherit"  value={counter*(10/3)}/>
-        </Box>
-        <img src={qArray[count].question}
-          className="questions" alt="Quiz Question" />
-        <div className="answers">
-          {
-            storedAns
-              .map((a) => (
-                <button onClick={() => {
-                  handleClick(a.isCorrect);
-                  toggle();
-                }
+      {!show && (
+        <div className='quiz-header'>
+          <Box sx={{ width: '100%' }}>
+            {timerComponent}
+          </Box>
+          <img src={qArray[count].question}
+            className="questions" alt="Quiz Question" />
+          <div className="answers">
+            {
+              storedAns
+                .map((a) => (
+                  <button onClick={() => {
+                    handleClick(a.isCorrect);
+                    toggle();
+                  }
                 }>
-                  <img src={a.ansImg} alt="Quiz Answer" />
-                </button>))}
+                    <img src={a.ansImg} alt="Quiz Answer" />
+                  </button>))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 
