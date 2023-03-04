@@ -22,7 +22,9 @@ function App() {
   }, [error])
 
   useEffect(() => {
-    switch(user?.status) {
+    if (!user) return;
+
+    switch(user.status) {
       case 'completed': 
         setMessage('You have already completed this quiz once. Please contact the researcher if you believe there is an issue.');
         break;
@@ -30,6 +32,7 @@ function App() {
         navigate("../quiz", { state: { accessCode } });
         break;
       default:
+        setMessage('Account improperly configured. Please contact the researcher.');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user])

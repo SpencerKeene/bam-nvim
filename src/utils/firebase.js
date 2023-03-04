@@ -7,6 +7,7 @@ export const getUserDoc = (accessCode) => getDoc(getUserRef(accessCode));
 export const postUserAnswers = (accessCode, answers) => (
   updateDoc(getUserRef(accessCode), {
     answers,
-    status: 'completed'
+    score: answers.reduce((sum, curr) => sum += curr ? 1 : 0, 0),
+    ...(accessCode !== 'devtest' && { status: 'completed' })
   })
 );

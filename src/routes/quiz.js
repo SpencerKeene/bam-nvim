@@ -8,7 +8,7 @@ import AddIcon from '@mui/icons-material/Add';
 
 import qArray from './quizDatabase.js';
 import { useCountdownTimer } from '../components/CountdownTimer';
-import { useGetUser, useUpdateUser } from '../hooks/firebase';
+import { useGetUser } from '../hooks/firebase';
 import { postUserAnswers } from '../utils/firebase';
 
 // timer durations in milliseconds
@@ -24,13 +24,14 @@ export default function Quiz() {
   const [count, setCount] = useState(0);
   const [ansArray, setAnsArray] = useState([]);
   const [user, error] = useGetUser(accessCode, true);
-  
+
   const [timerComponent, startTimer, stopTimer] = useCountdownTimer(QUESTION_TIMER_DURATION, onTimerEnd);
 
   // redirect user if they don't have a valid access code
   useEffect(() => {
-    if (error) navigate('..');
-    switch(user?.status) {
+    if (error || !user) navigate('..');
+
+    switch(user.status) {
       case 'completed': 
         navigate('..');
         break;
@@ -38,6 +39,7 @@ export default function Quiz() {
         startTimer();
         break;
       default:
+        navigate('..');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, error])
@@ -89,6 +91,10 @@ export default function Quiz() {
       setCount(count + 1); //set count
       ansStorer(); //storeAnswers to prevent shuffle
     } else {
+      console.log('update', {
+        ansArray,
+        ...(accessCode !== 'dev' && { status: 'completed' })
+      });
       postUserAnswers(accessCode, ansArray).then(() => {
         navigate("../complete"); //quiz is completed
       });
