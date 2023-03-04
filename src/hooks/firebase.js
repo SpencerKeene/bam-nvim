@@ -1,12 +1,9 @@
 import { useEffect, useState } from 'react';
 import { db } from '../config/firebase'
-import { collection, getDocs, query, updateDoc, where, limit } from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
-const usersCollectionRef = collection(db, 'users');
-
-function fetchByAccessCode(accessCode) {
-  return getDocs(query(usersCollectionRef, where('accessCode', '==', accessCode), limit(1)))
-    .then(userSnap => userSnap.docs[0])
+function getUserDoc(accessCode) {
+  return getDoc(doc(db, 'users', accessCode));
 }
 
 function useUser(accessCode, fetchImmediately, data, callback = () => {}) {
@@ -20,10 +17,10 @@ function useUser(accessCode, fetchImmediately, data, callback = () => {}) {
     if (!accessCode) return setError('Error fetching user info');
 
     setLoading(true);
-    fetchByAccessCode(accessCode)
+    getUserDoc(accessCode)
       .then(userSnap => {
-        setUser(userSnap?.data() || null)
-        setError(userSnap ? '' : `Unable to find user: ${accessCode}`);
+        setUser(userSnap.data() || null);
+        setError(userSnap.exists() ? '' : `Unable to find user: ${accessCode}`);
       })
       .catch(() => setError('Error fetching user info'))
       .finally(() => setLoading(false));
@@ -33,9 +30,9 @@ function useUser(accessCode, fetchImmediately, data, callback = () => {}) {
     if (loading) return;
   
     setLoading(true);
-    fetchByAccessCode(accessCode)
+    getUserDoc(accessCode)
       .then(userSnap => updateDoc(userSnap.ref, data)
-        .then(() => fetchByAccessCode(accessCode)
+        .then(() => getUserDoc(accessCode)
           .then(updatedUserSnap => {
             setUser(updatedUserSnap.data());
             setError('');

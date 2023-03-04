@@ -9,7 +9,7 @@ import Alert from '@mui/material/Alert';
 import exampleimage1 from './assets/exampleImages/examplephoto1.png';
 import exampleimage2 from './assets/exampleImages/examplephoto2.png';
 
-import { useGetUser } from './hooks/firebase'
+import { useGetUser } from './hooks/firebase';
 
 function App() {
   const navigate = useNavigate();
@@ -27,11 +27,12 @@ function App() {
         setMessage('You have already completed this quiz once. Please contact the researcher if you believe there is an issue.');
         break;
       case 'incomplete':
-        navigate("../quiz", { state: { accessCode: user.accessCode } });
+        navigate("../quiz", { state: { accessCode } });
         break;
       default:
     }
-  }, [user, navigate])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user])
 
   const handleKeyDown = (e) => {
     // if user presses Enter without pressing Shift
