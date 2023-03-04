@@ -13,8 +13,8 @@ import { useGetUser } from './hooks/firebase'
 
 function App() {
   const navigate = useNavigate();
-  const [username, setUsername] = useState("");
-  const [user, error, loading, refresh] = useGetUser(username);
+  const [accessCode, setAccessCode] = useState("");
+  const [user, error, loading, refresh] = useGetUser(accessCode);
 
   if (user) navigate("../quiz", { state: { username: user.username } });
 
@@ -49,8 +49,8 @@ function App() {
               id="outlined-basic" 
               label="Enter Access Code"
               variant="outlined"
-              value={username}
-              onChange={(e) => { setUsername(e.target.value); }}
+              value={accessCode}
+              onChange={(e) => { setAccessCode(e.target.value); }}
               onKeyDown={handleKeyDown}
             />
             <LoadingButton 
@@ -67,7 +67,7 @@ function App() {
               sx={{ textTransform: "none" }}
               disableElevation
               onClick={refresh}
-              disabled={!username}
+              disabled={!accessCode}
             >
               Begin Test
             </LoadingButton>
