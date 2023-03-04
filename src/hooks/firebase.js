@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { db } from '../config/firebase'
 import { collection, getDocs, query, updateDoc, where, limit } from 'firebase/firestore';
 
@@ -9,13 +9,15 @@ function fetchByAccessCode(accessCode) {
     .then(userSnap => userSnap.docs[0])
 }
 
-function useUser(accessCode, data, callback = () => {}) {
+function useUser(accessCode, fetchImmediately, data, callback = () => {}) {
   const [user, setUser] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   function refresh() {
     if (loading) return;
+
+    if (!accessCode) return setError('Error fetching user info');
 
     setLoading(true);
     fetchByAccessCode(accessCode)
@@ -48,17 +50,22 @@ function useUser(accessCode, data, callback = () => {}) {
       .finally(() => setLoading(false));
   }
 
+  useEffect(() => {
+    if (fetchImmediately) refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   return [user, error, loading, refresh, update];
 }
 
-export function useGetUser(accessCode) {
+export function useGetUser(accessCode, fetchImmediately = false) {
   // eslint-disable-next-line no-unused-vars
-  const [user, error, loading, refresh, update] = useUser(accessCode);
+  const [user, error, loading, refresh, update] = useUser(accessCode, fetchImmediately);
   return [user, error, loading, refresh];
 }
 
 export function useUpdateUser(accessCode, data, callback) {
   // eslint-disable-next-line no-unused-vars
-  const [user, error, loading, refresh, update] = useUser(accessCode, data, callback);
+  const [user, error, loading, refresh, update] = useUser(accessCode, false, data, callback);
   return [user, error, loading, update];
 }

@@ -8,9 +8,11 @@ import AddIcon from '@mui/icons-material/Add';
 
 import qArray from './quizDatabase.js';
 import { useCountdownTimer } from '../components/CountdownTimer';
+import { useGetUser } from '../hooks/firebase';
 
-const QUESTION_TIMER_DURATION = 30000 // milliseconds
-const MODAL_TIMER_DURATION = 1000 // milliseconds
+// timer durations in milliseconds
+const QUESTION_TIMER_DURATION = 30000;
+const MODAL_TIMER_DURATION = 1000;
 
 export default function Quiz() {
   let navigate = useNavigate();
@@ -20,16 +22,17 @@ export default function Quiz() {
   const [ansArray, setAnsArray] = useState([]);
   const [timerComponent, startTimer, stopTimer] = useCountdownTimer(QUESTION_TIMER_DURATION, onTimerEnd);
 
-  const [username, setUsername] = useState("admin");
-  
-  useEffect(() => {
-    startTimer();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  const [user, error] = useGetUser(location.state?.accessCode, true);
 
+  // redirect user if they don't have a valid access code
+  useEffect(() => {
+    if (error) navigate('..');
+    if (user) startTimer(); 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, error])
+  
   //Renders first question's answers
   useEffect(() => {
-    setUsername(location.state.username);
     for (var i = 0; i < 4; i++) {
       setStoredAns(storedAns[i] = qArray[count].answers[i]);
     }
@@ -155,7 +158,7 @@ export default function Quiz() {
         </Box>
       </Modal>
 
-      {!show && (
+      {!show && user && (
         <div className='quiz-header'>
           <Box sx={{ width: '100%' }}>
             {timerComponent}
