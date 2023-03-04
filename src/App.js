@@ -1,5 +1,5 @@
 import './App.css';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
 
 import TextField from "@mui/material/TextField";
@@ -14,9 +14,24 @@ import { useGetUser } from './hooks/firebase'
 function App() {
   const navigate = useNavigate();
   const [accessCode, setAccessCode] = useState("");
+  const [message, setMessage] = useState('');
   const [user, error, loading, refresh] = useGetUser(accessCode);
 
-  if (user) navigate("../quiz", { state: { accessCode: user.accessCode } });
+  useEffect(() => {
+    if (error) setMessage(error);
+  }, [error])
+
+  useEffect(() => {
+    switch(user?.status) {
+      case 'completed': 
+        setMessage('You have already completed this quiz once. Please contact the researcher if you believe there is an issue.');
+        break;
+      case 'incomplete':
+        navigate("../quiz", { state: { accessCode: user.accessCode } });
+        break;
+      default:
+    }
+  }, [user, navigate])
 
   const handleKeyDown = (e) => {
     // if user presses Enter without pressing Shift
@@ -72,7 +87,7 @@ function App() {
               Begin Test
             </LoadingButton>
 
-            {error && <Alert severity="error">{error}</Alert>}
+            {message && <Alert severity="error">{message}</Alert>}
 
           </div>
         </div>

@@ -8,7 +8,7 @@ import AddIcon from '@mui/icons-material/Add';
 
 import qArray from './quizDatabase.js';
 import { useCountdownTimer } from '../components/CountdownTimer';
-import { useGetUser } from '../hooks/firebase';
+import { useGetUser, useUpdateUser } from '../hooks/firebase';
 
 // timer durations in milliseconds
 const QUESTION_TIMER_DURATION = 30000;
@@ -22,12 +22,25 @@ export default function Quiz() {
   const [ansArray, setAnsArray] = useState([]);
   const [timerComponent, startTimer, stopTimer] = useCountdownTimer(QUESTION_TIMER_DURATION, onTimerEnd);
 
-  const [user, error] = useGetUser(location.state?.accessCode, true);
+  const accessCode = location.state?.accessCode;
+
+  const [user, error] = useGetUser(accessCode, true);
+
+  const [data, setData] = useState({});
+  const [_, updateError, updateLoading, updateUser] = useUpdateUser(accessCode, data);
 
   // redirect user if they don't have a valid access code
   useEffect(() => {
     if (error) navigate('..');
-    if (user) startTimer(); 
+    switch(user?.status) {
+      case 'completed': 
+        navigate('..');
+        break;
+      case 'incomplete':
+        startTimer();
+        break;
+      default:
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, error])
   
@@ -39,6 +52,9 @@ export default function Quiz() {
     setStoredAns(storedAns.sort((a) => 0.5 - Math.random()));
   }, []);
 
+  useEffect(() => {
+    setData({ answers: ansArray });
+  }, [ansArray])
 
   //modal
   const [show, setShow] = useState(false);
@@ -72,7 +88,7 @@ export default function Quiz() {
       }
     ])
   }
-
+  
   const handleClick = (isCorrect) => {
     saveScore(isCorrect ? 1 : 0)
 
@@ -81,7 +97,7 @@ export default function Quiz() {
       setCount(count + 1); //set count
       ansStorer(); //storeAnswers to prevent shuffle
     } else {
-      sendData();
+      updateUser();
       navigate("../complete"); //quiz is completed
     }
     stopTimer();
@@ -92,39 +108,6 @@ export default function Quiz() {
     console.log('test button pressed, skipping questions');
     setCount(78);
     startTimer();
-  }
-
-
-  //Finish Test and Upload Data
-  // const sendData = useCallback(() => {
-  //   const answers = JSON.stringify(ansArray)
-  //   fetch(`/apidone?username=${username}&ansArray=${answers}`)
-  //     .then(response => {
-  //       if (!response.ok) {
-  //         throw new Error(`status ${response.status}`);
-  //       }
-  //       return response.json();
-  //     })
-  //     .then(json => {
-  //       setMessage(json.message);
-  //       setIsFetching(false);
-  //       return json.message;
-  //     })
-  //     .then(message => {
-  //       if (message) {
-  //         console.log("f: " + message);
-  //       }
-  //       else {
-  //         navigate("../finalpage", { replace: true });
-  //       }
-  //     })
-  //     .catch(e => {
-  //       setMessage(`API call failed: ${e}`);
-  //       setIsFetching(false);
-  //     })
-  // }, [username, ansArray]);
-
-  async function sendData() {
   }
 
   function onTimerEnd() {
