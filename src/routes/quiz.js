@@ -9,6 +9,7 @@ import AddIcon from '@mui/icons-material/Add';
 import qArray from './quizDatabase.js';
 import { useCountdownTimer } from '../components/CountdownTimer';
 import { useGetUser, useUpdateUser } from '../hooks/firebase';
+import { postUserAnswers } from '../utils/firebase';
 
 // timer durations in milliseconds
 const QUESTION_TIMER_DURATION = 30000;
@@ -17,17 +18,14 @@ const MODAL_TIMER_DURATION = 1000;
 export default function Quiz() {
   let navigate = useNavigate();
   const location = useLocation();
+  
+  const accessCode = location.state?.accessCode;
 
   const [count, setCount] = useState(0);
   const [ansArray, setAnsArray] = useState([]);
-  const [timerComponent, startTimer, stopTimer] = useCountdownTimer(QUESTION_TIMER_DURATION, onTimerEnd);
-
-  const accessCode = location.state?.accessCode;
-
   const [user, error] = useGetUser(accessCode, true);
-
-  const [data, setData] = useState({});
-  const [_, updateError, updateLoading, updateUser] = useUpdateUser(accessCode, data);
+  
+  const [timerComponent, startTimer, stopTimer] = useCountdownTimer(QUESTION_TIMER_DURATION, onTimerEnd);
 
   // redirect user if they don't have a valid access code
   useEffect(() => {
@@ -51,10 +49,6 @@ export default function Quiz() {
     }
     setStoredAns(storedAns.sort((a) => 0.5 - Math.random()));
   }, []);
-
-  useEffect(() => {
-    setData({ answers: ansArray });
-  }, [ansArray])
 
   //modal
   const [show, setShow] = useState(false);
@@ -82,31 +76,30 @@ export default function Quiz() {
   const saveScore = (a) => {
     setAnsArray([
       ...ansArray,
-      {
-        id: ansArray.length,
-        value: a
-      }
+      a
     ])
   }
   
   const handleClick = (isCorrect) => {
-    saveScore(isCorrect ? 1 : 0)
+    stopTimer();
+    saveScore(isCorrect);
 
     //handles the count
     if (count < 79) {
       setCount(count + 1); //set count
       ansStorer(); //storeAnswers to prevent shuffle
     } else {
-      updateUser();
-      navigate("../complete"); //quiz is completed
+      postUserAnswers(accessCode, ansArray).then(() => {
+        navigate("../complete"); //quiz is completed
+      });
     }
-    stopTimer();
   }
 
   //testButton to skip to final few questions
   const testButton = () => {
     console.log('test button pressed, skipping questions');
     setCount(78);
+    ansStorer();
     startTimer();
   }
 
