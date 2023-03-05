@@ -29,9 +29,9 @@ export default function Quiz() {
 
   // redirect user if they don't have a valid access code
   useEffect(() => {
-    if (error || !user) navigate('..');
+    if (error) navigate('..');
 
-    switch(user.status) {
+    switch(user?.status) {
       case 'completed': 
         navigate('..');
         break;
@@ -39,7 +39,6 @@ export default function Quiz() {
         startTimer();
         break;
       default:
-        navigate('..');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, error])
