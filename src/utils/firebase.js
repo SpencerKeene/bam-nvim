@@ -52,8 +52,8 @@ export const researcherSignIn = (email, password) => (
         case 'auth/user-not-found':
           throw Error('Cannot find user with this email')
         default:
-          throw reason
-          // throw Error('Error with sign in. Try again later.')
+          // throw reason
+          throw Error('Error with sign in. Try again later.')
       }
     })
 );
