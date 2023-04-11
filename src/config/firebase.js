@@ -3,13 +3,12 @@ import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCneprZKzkDp_vh7UarQIw4Id-IJAMCZEk",
-  authDomain: "bam-nvim.firebaseapp.com",
-  projectId: "bam-nvim",
-  storageBucket: "bam-nvim.appspot.com",
-  messagingSenderId: "994867030843",
-  appId: "1:994867030843:web:f9739ee4c9fc8d2855651e",
-  measurementId: "G-HWNR0XNDBL",
+  apiKey: "AIzaSyCFhfYWI3BGzNIT9lm9A3-uhjV0XCnd9iM",
+  authDomain: "bamtoronto-nvim.firebaseapp.com",
+  projectId: "bamtoronto-nvim",
+  storageBucket: "bamtoronto-nvim.appspot.com",
+  messagingSenderId: "587356339074",
+  appId: "1:587356339074:web:ff53249bc1b900f6682d9b",
 };
 
 const firebaseApp = initializeApp(firebaseConfig);
