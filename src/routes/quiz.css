@@ -1,49 +1,49 @@
 .quiz {
-    font-family: 'Roboto';
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    width: 100%;
-    text-align: center;
+  font-family: "Roboto";
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  text-align: center;
 }
 
 .home-icon {
-    display: flex;
-    padding-left: 10px;
-    padding-top: 10px;
+  display: flex;
+  padding-left: 10px;
+  padding-top: 10px;
 }
 
 .quiz-header {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 90vh;
-    gap: 2vh;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 90vh;
+  gap: 2vh;
 }
 
-.home-icon :nth-child(1){
-    cursor: pointer;
+.home-icon :nth-child(1) {
+  cursor: pointer;
 }
 
-.home-icon :nth-child(1):hover, .home-icon :nth-child(1):active{
-    color: black;
+.home-icon :nth-child(1):hover,
+.home-icon :nth-child(1):active {
+  color: black;
 }
-
 
 .questions {
-    display: flex;
-    margin: auto;
-    width: 20em;
-    justify-content: center;
+  display: flex;
+  margin: auto;
+  width: 20em;
+  justify-content: center;
 }
 
 .answers {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
-.answers img{
-    max-width: 128px;
+.answers img {
+  max-width: 128px;
 }

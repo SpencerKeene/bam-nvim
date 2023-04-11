@@ -1,8 +1,8 @@
-import './Researcher.css'
-import React from 'react'
-import ResearcherPortal from './ResearcherPortal';
-import ResearcherSignin from './ResearcherSignin';
-import { useResearcherAuth } from '../../hooks/firebase';
+import "./Researcher.css";
+import React from "react";
+import ResearcherPortal from "./ResearcherPortal";
+import ResearcherSignin from "./ResearcherSignin";
+import { useResearcherAuth } from "../../hooks/firebase";
 
 export default function Researcher() {
   const researcher = useResearcherAuth();
@@ -17,5 +17,5 @@ export default function Researcher() {
         )}
       </div>
     </div>
-  )
+  );
 }

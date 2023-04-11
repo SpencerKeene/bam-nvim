@@ -1,23 +1,41 @@
-import './Researcher.css'
-import { LoadingButton } from '@mui/lab';
-import { Alert, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, TextField, Toolbar, Tooltip } from '@mui/material';
-import React, { useMemo, useState } from 'react'
-import { createUser, deleteUser } from '../../utils/firebase';
-import { useUserCollection } from '../../hooks/firebase';
-import { DataGrid, GridToolbarExport, GridToolbarFilterButton, useGridApiContext } from '@mui/x-data-grid';
-import { Delete } from '@mui/icons-material';
+import "./Researcher.css";
+import { LoadingButton } from "@mui/lab";
+import {
+  Alert,
+  Button,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  IconButton,
+  TextField,
+  Toolbar,
+  Tooltip,
+} from "@mui/material";
+import React, { useMemo, useState } from "react";
+import { createUser, deleteUser } from "../../utils/firebase";
+import { useResearcherAuth, useUserCollection } from "../../hooks/firebase";
+import {
+  DataGrid,
+  GridToolbarExport,
+  GridToolbarFilterButton,
+  useGridApiContext,
+} from "@mui/x-data-grid";
+import { Delete } from "@mui/icons-material";
 
 function CustomGridToolbar() {
   const apiRef = useGridApiContext();
-  
+
   const [open, setOpen] = useState(false);
-  
+
   const selectedRows = apiRef.current.getSelectedRows();
 
   function deleteUsers() {
     selectedRows.forEach((_, accessCode) => {
       deleteUser(accessCode);
-    })
+    });
   }
 
   return (
@@ -28,9 +46,7 @@ function CustomGridToolbar() {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">
-          Delete Participants?
-        </DialogTitle>
+        <DialogTitle id="alert-dialog-title">Delete Participants?</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
             Are you sure you want to delete these participants?
@@ -38,13 +54,13 @@ function CustomGridToolbar() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpen(false)}>Cancel</Button>
-          <Button 
+          <Button
             onClick={() => {
               setOpen(false);
               deleteUsers();
             }}
             autoFocus
-            color='error'
+            color="error"
           >
             Delete
           </Button>
@@ -53,56 +69,67 @@ function CustomGridToolbar() {
 
       <GridToolbarFilterButton />
       <GridToolbarExport />
-      <div style={{marginLeft: 'auto'}}>
-        <Tooltip title='Delete'>
-          <IconButton 
-            onClick={() => setOpen(true)}
-            disabled={selectedRows.size === 0}
-          >
-            <Delete />
-          </IconButton>
+      <div style={{ marginLeft: "auto" }}>
+        <Tooltip title="Delete">
+          <span>
+            <IconButton
+              onClick={() => setOpen(true)}
+              disabled={selectedRows.size === 0}
+            >
+              <Delete />
+            </IconButton>
+          </span>
         </Tooltip>
       </div>
     </Toolbar>
-  )
+  );
 }
 
 export default function ResearcherPortal() {
-  const [newAccessCode, setNewAccessCode] = useState('');
+  const [newAccessCode, setNewAccessCode] = useState("");
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
-  const [messageSeverity, setMessageSeverity] = useState('');
+  const [message, setMessage] = useState("");
+  const [messageSeverity, setMessageSeverity] = useState("");
+  const [showSignOutDialog, setShowSignOutDialog] = useState(false);
+
+  const researcher = useResearcherAuth();
 
   const users = useUserCollection();
 
-  const userGridRows = useMemo(() => !users ? [] : Object.entries(users).map(([accessCode, doc]) => ({
-    id: accessCode,
-    accessCode,
-    ...doc
-  })), [users]);
-  
+  const userGridRows = useMemo(
+    () =>
+      !users
+        ? []
+        : Object.entries(users).map(([accessCode, doc]) => ({
+            id: accessCode,
+            accessCode,
+            ...doc,
+          })),
+    [users]
+  );
+
   const userGridColumns = [
-    { field: 'accessCode', headerName: 'Access Code', width: 300 },
-    { field: 'status', headerName: 'Status', width: 150 },
-    { field: 'score', headerName: 'Score', width: 150},
-    { field: 'answers', headerName: 'Answers'}
-  ]
+    { field: "accessCode", headerName: "Access Code", width: 300 },
+    { field: "status", headerName: "Status", width: 150 },
+    { field: "score", headerName: "Score", width: 150 },
+    { field: "answers", headerName: "Answers" },
+  ];
 
   function setSuccessMessage(message) {
     setMessage(message);
-    setMessageSeverity('success');
+    setMessageSeverity("success");
   }
 
   function setErrorMessage(message) {
     setMessage(message);
-    setMessageSeverity('error');
+    setMessageSeverity("error");
   }
 
   function handleCreateUser() {
     setLoading(true);
     createUser(newAccessCode)
-      .then(() => setSuccessMessage('User created successfully'))
-      .catch(err => setErrorMessage(err.message))
+      .then(() => setSuccessMessage("User created successfully"))
+      .catch((err) => setErrorMessage(err.message))
       .finally(() => setLoading(false));
   }
 
@@ -112,23 +139,57 @@ export default function ResearcherPortal() {
       handleCreateUser();
       e.preventDefault();
     }
-  }
+  };
+
+  const handleSignOut = () => {
+    researcher.auth.signOut();
+  };
 
   return (
     <div className="Instructions">
       <h1>MaRs Reasoning Task</h1>
 
       <h2>Researcher Portal</h2>
-      <p>Create or delete user accounts for participants and view/download participant results.</p>
+      <p>
+        Create or delete user accounts for participants and view/download
+        participant results.
+      </p>
+
+      <p>
+        <b>Signed in as:</b> {researcher?.email}
+      </p>
+      <Button onClick={() => setShowSignOutDialog(true)} color="error">
+        Sign Out
+      </Button>
+      {/* sign out dialog */}
+      <Dialog
+        open={showSignOutDialog}
+        onClose={() => setShowSignOutDialog(false)}
+      >
+        <DialogTitle>Sign Out?</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to sign out?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowSignOutDialog(false)}>Cancel</Button>
+          <Button onClick={handleSignOut} autoFocus color="error">
+            Sign Out
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <h3>Participants</h3>
-      <div className='text-input'>
+      <div className="text-input">
         <TextField
-          id="outlined-basic" 
-          label="Enter Access Code"
+          id="outlined-basic"
+          label="New Access Code"
           variant="outlined"
           value={newAccessCode}
-          onChange={(e) => { setNewAccessCode(e.target.value) }}
+          onChange={(e) => {
+            setNewAccessCode(e.target.value);
+          }}
           onKeyDown={handleKeyDown}
         />
         <LoadingButton
@@ -145,10 +206,10 @@ export default function ResearcherPortal() {
         {message && <Alert severity={messageSeverity}>{message}</Alert>}
       </div>
 
-      <div className='user-list'>
+      <div className="user-list">
         {!users ? (
-          <div style={{ display: 'grid', justifyContent: 'center' }}>
-            <CircularProgress size={50}/>
+          <div style={{ display: "grid", justifyContent: "center" }}>
+            <CircularProgress size={50} />
           </div>
         ) : (
           <DataGrid
@@ -156,11 +217,11 @@ export default function ResearcherPortal() {
             columns={userGridColumns}
             checkboxSelection
             slots={{
-              toolbar: CustomGridToolbar
+              toolbar: CustomGridToolbar,
             }}
           />
         )}
       </div>
     </div>
-  )
+  );
 }

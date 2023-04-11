@@ -1,5 +1,5 @@
-.App {
-  font-family: 'Roboto';
+body {
+  font-family: "Roboto";
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -14,10 +14,10 @@
   text-align: left;
   margin: auto;
 }
-.Instructions img{
+
+.Instructions img {
   align-self: center;
 }
-
 
 .App-header {
   display: flex;
@@ -30,7 +30,7 @@
   vertical-align: middle;
 }
 
-.text-input{
+.text-input {
   display: flex;
   flex-direction: column;
   align-self: center;
@@ -40,10 +40,11 @@
   text-align: center;
 }
 
-@media screen and (max-width:800px) {
+@media screen and (max-width: 800px) {
   .Instructions {
     width: 95%;
   }
+
   .Instructions img {
     width: 70%;
   }
@@ -73,7 +74,6 @@
 }
 
 .answers {
-
   /* display:flex;
   flex-direction: row;
   flex-wrap: wrap;
