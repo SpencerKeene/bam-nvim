@@ -86,53 +86,33 @@ function CustomGridToolbar() {
 }
 
 export default function ResearcherPortal() {
+  // Hooks
+  const researcher = useResearcherAuth();
+  const users = useUserCollection();
+
+  // State
   const [newAccessCode, setNewAccessCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [messageSeverity, setMessageSeverity] = useState("");
   const [showSignOutDialog, setShowSignOutDialog] = useState(false);
 
-  const researcher = useResearcherAuth();
-
-  const users = useUserCollection();
-
-  const userGridRows = useMemo(
-    () =>
-      !users
-        ? []
-        : Object.entries(users).map(([accessCode, doc]) => ({
-            id: accessCode,
-            accessCode,
-            ...doc,
-          })),
-    [users]
-  );
-
-  const userGridColumns = [
-    { field: "accessCode", headerName: "Access Code", width: 300 },
-    { field: "status", headerName: "Status", width: 150 },
-    { field: "score", headerName: "Score", width: 150 },
-    { field: "answers", headerName: "Answers" },
-  ];
-
-  function setSuccessMessage(message) {
+  // Functions
+  const setSuccessMessage = (message) => {
     setMessage(message);
     setMessageSeverity("success");
-  }
-
-  function setErrorMessage(message) {
+  };
+  const setErrorMessage = (message) => {
     setMessage(message);
     setMessageSeverity("error");
-  }
-
-  function handleCreateUser() {
+  };
+  const handleCreateUser = () => {
     setLoading(true);
     createUser(newAccessCode)
       .then(() => setSuccessMessage("User created successfully"))
       .catch((err) => setErrorMessage(err.message))
       .finally(() => setLoading(false));
-  }
-
+  };
   const handleKeyDown = (e) => {
     // if user presses Enter without pressing Shift
     if (e.keyCode === 13 && !e.shiftKey) {
@@ -140,10 +120,37 @@ export default function ResearcherPortal() {
       e.preventDefault();
     }
   };
-
   const handleSignOut = () => {
     researcher.auth.signOut();
   };
+  const getUserScore = (params) => params.row.results?.score ?? "N/A";
+  const getUserAnswers = (params) => params.row.results?.answers ?? "N/A";
+
+  // Constants
+  const userGridColumns = [
+    { field: "accessCode", headerName: "Access Code", width: 300 },
+    { field: "status", headerName: "Status", width: 125 },
+    {
+      field: "score",
+      headerName: "Score",
+      valueGetter: getUserScore,
+      width: 125,
+    },
+    {
+      field: "answers",
+      headerName: "Answers",
+      valueGetter: getUserAnswers,
+      flex: 1,
+    },
+  ];
+  const userGridRows = useMemo(() => {
+    if (!users) return [];
+    return Object.entries(users).map(([accessCode, doc]) => ({
+      id: accessCode,
+      accessCode,
+      ...doc,
+    }));
+  }, [users]);
 
   return (
     <div className="Instructions">

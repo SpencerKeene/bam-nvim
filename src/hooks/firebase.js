@@ -1,13 +1,16 @@
 import { collection, onSnapshot, query, where } from "firebase/firestore";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { auth, db } from "../config/firebase";
-import { getUserDoc } from "../utils/firebase";
+import { getUserDoc, getUserResultsRef } from "../utils/firebase";
 
+// Collections
 const userCollection = collection(db, "users");
 
-const researcherUserCollectionQuery = () =>
+// Queries
+const researcherOwnedUserQuery = () =>
   query(userCollection, where("researcher", "==", auth.currentUser.uid));
 
+// Hooks
 export function useGetUser(accessCode, fetchImmediately) {
   const [user, setUser] = useState(null);
   const [error, setError] = useState("");
@@ -38,19 +41,43 @@ export function useGetUser(accessCode, fetchImmediately) {
 
 export function useUserCollection() {
   const [users, setUsers] = useState(null);
+  const unsubResultsListRef = useRef([]);
 
   useEffect(() => {
-    function updateUsers(collectionSnap) {
-      setUsers(
-        collectionSnap.docs.reduce((newUsers, currDoc) => {
-          newUsers[currDoc.id] = currDoc.data();
-          return newUsers;
-        }, {})
-      );
+    function subToUserResults(userId) {
+      const unsub = onSnapshot(getUserResultsRef(userId), (resultsSnap) => {
+        setUsers((prevUsers) => {
+          const prevUser = prevUsers[userId];
+          const results = resultsSnap.data();
+          const newUser = { ...prevUser, results };
+          return { ...prevUsers, [userId]: newUser };
+        });
+      });
+      return unsub;
+    }
+    function subToUsers() {
+      const unsub = onSnapshot(researcherOwnedUserQuery(), (collectionSnap) => {
+        const newUsers = collectionSnap.docs.reduce((acc, doc) => {
+          const userId = doc.id;
+          const user = doc.data();
+          acc[userId] = { ...user, results: null };
+          const unsubResults = subToUserResults(userId);
+          unsubResultsListRef.current.push(unsubResults);
+          return acc;
+        }, {});
+        setUsers(newUsers);
+      });
+      return unsub;
     }
 
-    const unsub = onSnapshot(researcherUserCollectionQuery(), updateUsers);
-    return unsub;
+    const unsubUsers = subToUsers();
+
+    function unsubFromAll() {
+      unsubUsers();
+      unsubResultsListRef.current.forEach((unsub) => unsub());
+    }
+
+    return unsubFromAll;
   }, []);
 
   return users;

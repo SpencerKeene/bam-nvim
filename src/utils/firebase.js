@@ -10,20 +10,26 @@ import {
 export const getUserRef = (accessCode) => doc(db, "users", accessCode);
 export const getUserDoc = (accessCode) => getDoc(getUserRef(accessCode));
 
+export const getUserResultsRef = (accessCode) =>
+  doc(db, "users", accessCode, "private", "results");
+
+const newUserDoc = () => ({
+  status: "incomplete",
+  researcher: auth.currentUser.uid,
+});
+
 export const postUserAnswers = (accessCode, answers) =>
-  updateDoc(getUserRef(accessCode), {
+  setDoc(getUserResultsRef(accessCode), {
     answers,
-    score: answers.reduce((sum, curr) => (sum += curr ? 1 : 0), 0),
-    ...(accessCode !== "devtest" && { status: "completed" }),
-  }).catch(() => {
-    throw Error("Error updating user");
-  });
+    score: answers.reduce((sum, curr) => sum + (curr ? 1 : 0), 0),
+  })
+    .then(() => updateDoc(getUserRef(accessCode), { status: "completed" }))
+    .catch((err) => {
+      throw Error("Error updating user. Error code: " + err.code);
+    });
 
 export const createUser = (accessCode) =>
-  setDoc(getUserRef(accessCode), {
-    status: "incomplete",
-    researcher: auth.currentUser.uid,
-  }).catch(() => {
+  setDoc(getUserRef(accessCode), newUserDoc()).catch(() => {
     throw Error("User already exists");
   });
 

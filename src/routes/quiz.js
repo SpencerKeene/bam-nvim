@@ -91,7 +91,6 @@ export default function Quiz() {
     } else {
       console.log("update", {
         ansArray,
-        ...(accessCode !== "dev" && { status: "completed" }),
       });
       postUserAnswers(accessCode, ansArray).then(() => {
         navigate("../complete"); //quiz is completed
@@ -116,7 +115,9 @@ export default function Quiz() {
 
   return (
     <div className="quiz">
-      <button onClick={testButton} style={{ display: "none" }} />
+      <button onClick={testButton} style={{ display: "none" }}>
+        testButton
+      </button>
 
       <Modal
         open={show}
