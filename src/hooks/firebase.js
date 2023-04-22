@@ -10,6 +10,12 @@ const userCollection = collection(db, "users");
 const researcherOwnedUserQuery = () =>
   query(userCollection, where("researcher", "==", auth.currentUser.uid));
 
+// Functions
+const newUserObject = (userData) => ({
+  ...userData,
+  results: { score: "loading...", answers: "loading..." },
+});
+
 // Hooks
 export function useGetUser(accessCode, fetchImmediately) {
   const [user, setUser] = useState(null);
@@ -41,9 +47,13 @@ export function useGetUser(accessCode, fetchImmediately) {
 
 export function useUserCollection() {
   const [users, setUsers] = useState(null);
-  const unsubResultsListRef = useRef([]);
+  const unsubResultsRef = useRef({});
 
   useEffect(() => {
+    function unsubResults() {
+      Object.values(unsubResultsRef.current).forEach((unsub) => unsub());
+      unsubResultsRef.current = {};
+    }
     function subToUserResults(userId) {
       const unsub = onSnapshot(getUserResultsRef(userId), (resultsSnap) => {
         setUsers((prevUsers) => {
@@ -57,12 +67,12 @@ export function useUserCollection() {
     }
     function subToUsers() {
       const unsub = onSnapshot(researcherOwnedUserQuery(), (collectionSnap) => {
+        unsubResults();
         const newUsers = collectionSnap.docs.reduce((acc, doc) => {
           const userId = doc.id;
-          const user = doc.data();
-          acc[userId] = { ...user, results: null };
-          const unsubResults = subToUserResults(userId);
-          unsubResultsListRef.current.push(unsubResults);
+          acc[userId] = newUserObject(doc.data());
+          const unsub = subToUserResults(userId);
+          unsubResultsRef.current[userId] = unsub;
           return acc;
         }, {});
         setUsers(newUsers);
@@ -72,12 +82,12 @@ export function useUserCollection() {
 
     const unsubUsers = subToUsers();
 
-    function unsubFromAll() {
+    function unsubAll() {
       unsubUsers();
-      unsubResultsListRef.current.forEach((unsub) => unsub());
+      unsubResults();
     }
 
-    return unsubFromAll;
+    return unsubAll;
   }, []);
 
   return users;

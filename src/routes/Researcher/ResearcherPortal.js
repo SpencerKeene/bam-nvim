@@ -112,6 +112,7 @@ export default function ResearcherPortal() {
       .then(() => setSuccessMessage("User created successfully"))
       .catch((err) => setErrorMessage(err.message))
       .finally(() => setLoading(false));
+    setNewAccessCode("");
   };
   const handleKeyDown = (e) => {
     // if user presses Enter without pressing Shift

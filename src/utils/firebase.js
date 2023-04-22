@@ -34,7 +34,10 @@ export const createUser = (accessCode) =>
   });
 
 export const deleteUser = (accessCode) =>
-  deleteDoc(getUserRef(accessCode)).catch(() => {
+  Promise.all([
+    deleteDoc(getUserResultsRef(accessCode)),
+    deleteDoc(getUserRef(accessCode)),
+  ]).catch(() => {
     throw Error("Error deleting user");
   });
 
