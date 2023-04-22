@@ -1,17 +1,16 @@
-import React, { useCallback, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import "./quiz.css";
 import { useNavigate } from "react-router-dom";
 import pqArray from "./practiceQuizDatabase.js";
 
 import HomeIcon from "@mui/icons-material/Home";
 import Box from "@mui/material/Box";
-import LinearProgress from "@mui/material/LinearProgress";
 import Modal from "@mui/material/Modal";
 
 import Card from "@mui/material/Card";
-import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
+import { useCountdownTimer } from "../components/CountdownTimer";
 
 const style = {
   position: "absolute",
@@ -22,6 +21,8 @@ const style = {
   textAlign: "center",
 };
 
+const QUESTION_TIMER_DURATION = 30000;
+
 function App() {
   let navigate = useNavigate();
 
@@ -29,15 +30,12 @@ function App() {
 
   const [count, setCount] = useState(0);
   const [score, setScore] = useState(0);
-  const [counter, setCounter] = useState(30);
 
   //modal
-  const [show, setShow] = useState(false);
-  const handleClose = () => setShow(false);
-  //modal toggle
-  const toggle = () => {
-    setShow(true);
-    setTimeout(() => setShow(false), 1000);
+  const [showHelp, setShowHelp] = useState(false);
+  const handleCloseHelp = () => {
+    setShowHelp(false);
+    startTimer();
   };
 
   const [storedAns, setStoredAns] = useState([""]);
@@ -52,16 +50,23 @@ function App() {
     setStoredAns(storedAns.sort((a) => 0.5 - Math.random()));
   };
 
+  const [timerComponent, startTimer, stopTimer] = useCountdownTimer(
+    QUESTION_TIMER_DURATION,
+    onTimerEnd
+  );
+
   //renders first question answers
   useEffect(() => {
-    setShow(true);
+    setShowHelp(true);
     for (var i = 0; i < 4; i++) {
       setStoredAns((storedAns[i] = pqArray[count].answers[i]));
     }
     setStoredAns(storedAns.sort((a) => 0.5 - Math.random()));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleClick = (isCorrect) => {
+    stopTimer();
     //set scores
     if (isCorrect) {
       setScore(score + 1); //tracks total score
@@ -76,28 +81,20 @@ function App() {
       ansStorer();
       setScore(0);
     }
-    setCounter(30); //resets timer
+    startTimer();
   };
 
-  React.useEffect(() => {
-    const timer =
-      counter > 0 && setInterval(() => setCounter(counter - 1), 1000);
-
-    if (counter <= 0) {
-      //toggle();
-      setCounter(30);
-      setCount(count + 1);
-      ansStorer();
-      handleClick(false);
-    }
-    return () => clearInterval(timer);
-  }, [counter]);
+  function onTimerEnd() {
+    setCount(count + 1);
+    ansStorer();
+    handleClick(false);
+  }
 
   return (
     <>
       <Modal
-        open={show}
-        onClose={handleClose}
+        open={showHelp}
+        onClose={handleCloseHelp}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
@@ -132,13 +129,7 @@ function App() {
 
       <div className="quiz">
         <div className="quiz-header">
-          <Box sx={{ width: "100%" }}>
-            <LinearProgress
-              variant="determinate"
-              color="inherit"
-              value={counter * (10 / 3)}
-            />
-          </Box>
+          <Box sx={{ width: "100%" }}>{timerComponent}</Box>
           <div className="home-icon">
             <Box
               onClick={() => {

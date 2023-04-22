@@ -63,18 +63,14 @@ export function start(setTargetTime, duration) {
 }
 
 export function useCountdownTimer(duration, onEnd) {
-  const [targetTime, setTargetTime] = useState(0);
-
-  useEffect(() => {
-    start(setTargetTime, duration);
-  }, [duration]);
+  const [targetTime, setTargetTime] = useState(0); // begins stopped
 
   function startTimer() {
-    start(setTargetTime, duration);
+    setTargetTime(new Date().getTime() + duration);
   }
 
   function stopTimer() {
-    stop(setTargetTime);
+    setTargetTime(0); // arbitrary time in the past
   }
 
   const component = <CountdownTimer targetTime={targetTime} onEnd={onEnd} />;

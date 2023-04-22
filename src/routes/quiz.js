@@ -52,13 +52,14 @@ export default function Quiz() {
       setStoredAns((storedAns[i] = qArray[count].answers[i]));
     }
     setStoredAns(storedAns.sort((a) => 0.5 - Math.random()));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   //modal
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   //modal toggle
-  const toggle = () => {
+  const displayModal = () => {
     setShow(true);
     setTimeout(() => {
       setShow(false);
@@ -107,7 +108,7 @@ export default function Quiz() {
   };
 
   function onTimerEnd() {
-    toggle();
+    displayModal();
     setCount(count + 1);
     ansStorer();
     handleClick(false);
@@ -154,7 +155,7 @@ export default function Quiz() {
               <button
                 onClick={() => {
                   handleClick(a.isCorrect);
-                  toggle();
+                  displayModal();
                 }}
               >
                 <img src={a.ansImg} alt="Quiz Answer" />
