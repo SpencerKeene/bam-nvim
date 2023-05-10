@@ -46,7 +46,7 @@ export function useGetUser(accessCode, fetchImmediately) {
 }
 
 export function useUserCollection() {
-  const [users, setUsers] = useState(null);
+  const [users, setUsers] = useState([]);
   const unsubResultsRef = useRef({});
 
   useEffect(() => {
@@ -55,21 +55,29 @@ export function useUserCollection() {
       unsubResultsRef.current = {};
     }
     function subToUserResults(userId) {
-      const unsub = onSnapshot(getUserResultsRef(userId), (resultsSnap) => {
+      const snapshotHandler = (resultsSnap) => {
         setUsers((prevUsers) => {
           const prevUser = prevUsers[userId];
           const results = resultsSnap.data();
           const newUser = { ...prevUser, results };
           return { ...prevUsers, [userId]: newUser };
         });
-      });
+      };
+
+      const unsub = onSnapshot(
+        getUserResultsRef(userId),
+        snapshotHandler,
+        () => onSnapshot(getUserResultsRef(userId), snapshotHandler) // if it fails, try again
+      );
       return unsub;
     }
     function subToUsers() {
       const unsub = onSnapshot(researcherOwnedUserQuery(), (collectionSnap) => {
         unsubResults();
+        console.log("subToUsers");
         const newUsers = collectionSnap.docs.reduce((acc, doc) => {
           const userId = doc.id;
+          if (userId === "DO_NOT_SHOW_OR_DELETE_THIS_USER") return acc;
           acc[userId] = newUserObject(doc.data());
           const unsub = subToUserResults(userId);
           unsubResultsRef.current[userId] = unsub;
@@ -86,7 +94,6 @@ export function useUserCollection() {
       unsubUsers();
       unsubResults();
     }
-
     return unsubAll;
   }, []);
 

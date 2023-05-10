@@ -7,17 +7,25 @@ import {
   sendPasswordResetEmail as firebaseSendPasswordResetEmail,
 } from "firebase/auth";
 
+// Document references
 export const getUserRef = (accessCode) => doc(db, "users", accessCode);
 export const getUserDoc = (accessCode) => getDoc(getUserRef(accessCode));
 
 export const getUserResultsRef = (accessCode) =>
   doc(db, "users", accessCode, "private", "results");
 
+// Document templates
 const newUserDoc = () => ({
   status: "incomplete",
   researcher: auth.currentUser.uid,
 });
 
+const newResultsDoc = () => ({
+  score: null,
+  answers: null,
+});
+
+// Functions
 export const postUserAnswers = (accessCode, answers) =>
   setDoc(getUserResultsRef(accessCode), {
     answers,
@@ -28,10 +36,16 @@ export const postUserAnswers = (accessCode, answers) =>
       throw Error("Error updating user. Error code: " + err.code);
     });
 
+const setUserResults = (accessCode) =>
+  setDoc(getUserResultsRef(accessCode), newResultsDoc());
+const setUser = (accessCode) => setDoc(getUserRef(accessCode), newUserDoc());
+
 export const createUser = (accessCode) =>
-  setDoc(getUserRef(accessCode), newUserDoc()).catch(() => {
-    throw Error("User already exists");
-  });
+  setUserResults(accessCode)
+    .then(() => setUser(accessCode))
+    .catch(() => {
+      throw Error("User already exists");
+    });
 
 export const deleteUser = (accessCode) =>
   Promise.all([
