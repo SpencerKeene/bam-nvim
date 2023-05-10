@@ -74,10 +74,8 @@ export function useUserCollection() {
     function subToUsers() {
       const unsub = onSnapshot(researcherOwnedUserQuery(), (collectionSnap) => {
         unsubResults();
-        console.log("subToUsers");
         const newUsers = collectionSnap.docs.reduce((acc, doc) => {
           const userId = doc.id;
-          if (userId === "DO_NOT_SHOW_OR_DELETE_THIS_USER") return acc;
           acc[userId] = newUserObject(doc.data());
           const unsub = subToUserResults(userId);
           unsubResultsRef.current[userId] = unsub;
