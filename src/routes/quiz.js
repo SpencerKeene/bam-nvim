@@ -9,7 +9,7 @@ import AddIcon from "@mui/icons-material/Add";
 import qArray from "./quizDatabase.js";
 import { useCountdownTimer } from "../components/CountdownTimer";
 import { useGetUser } from "../hooks/firebase";
-import { postUserAnswers } from "../utils/firebase";
+import { postUserAnswers, setStatusStarted } from "../utils/firebase";
 
 // timer durations in milliseconds
 const QUESTION_TIMER_DURATION = 30000;
@@ -33,15 +33,15 @@ export default function Quiz() {
   // redirect user if they don't have a valid access code
   useEffect(() => {
     if (error) navigate("..");
+    if (!user) return;
 
     switch (user?.status) {
-      case "completed":
-        navigate("..");
-        break;
-      case "incomplete":
+      case "practiced":
+        setStatusStarted(accessCode);
         startTimer();
         break;
       default:
+        navigate("..");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, error]);

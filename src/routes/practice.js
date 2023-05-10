@@ -33,6 +33,8 @@ function App() {
   const accessCode = location.state?.accessCode;
   const [user, error] = useGetUser(accessCode, true);
 
+  const [hasCompleted, setHasCompleted] = useState(false);
+
   // redirect user if they don't exist
   useEffect(() => {
     if (error) navigate("..");
@@ -52,7 +54,6 @@ function App() {
   };
 
   //complete
-  const [hasCompleted, setHasCompleted] = useState(false);
   const [showComplete, setShowComplete] = useState(false);
   const handleCloseComplete = () => {
     setShowComplete(false);

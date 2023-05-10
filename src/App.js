@@ -10,6 +10,24 @@ import exampleimage1 from "./assets/exampleImages/examplephoto1.png";
 import exampleimage2 from "./assets/exampleImages/examplephoto2.png";
 
 import { useGetUser } from "./hooks/firebase";
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  DialogActions,
+  Modal,
+  Typography,
+} from "@mui/material";
+
+const style = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  maxWidth: "75%",
+  textAlign: "center",
+};
 
 function App() {
   const navigate = useNavigate();
@@ -17,6 +35,7 @@ function App() {
   const [message, setMessage] = useState("");
   const [user, error, loading, refresh] = useGetUser(accessCode);
   const [pressedButton, setPressedButton] = useState("");
+  const [showStartWarning, setShowStartWarning] = useState(false);
 
   const startPracticeQuiz = () => {
     navigate("../practice", { state: { accessCode } });
@@ -45,11 +64,11 @@ function App() {
         );
         break;
       case "practiced":
-        startMainQuiz();
+        setShowStartWarning(true);
         break;
       case "started":
         setMessage(
-          "You must complete the quiz on your first attempt. Please contact the researcher to reactivate your account if an error occured during your attempt."
+          "You have used your single attempt on the quiz. Please contact the researcher to reactivate your account."
         );
         break;
       case "completed":
@@ -147,6 +166,58 @@ function App() {
             </LoadingButton>
 
             {message && <Alert severity="error">{message}</Alert>}
+
+            {/* starting test warning */}
+            <Modal
+              open={showStartWarning}
+              // onClose={handleCloseStartWarning}
+              aria-labelledby="modal-start-warning"
+            >
+              <Box sx={style}>
+                <Card sx={{ maxWidth: 400, margin: "auto" }}>
+                  <CardContent>
+                    <Typography variant="h5" component="div">
+                      Starting Main Quiz
+                    </Typography>
+                    <Typography variant="body2">
+                      <br />
+                      You are about to start the main quiz.
+                      <br />
+                      <br />
+                      This quiz is very similar to the practice quiz, but it has
+                      many more questions. Be prepared to complete the entire
+                      quiz in one sitting.
+                      <br />
+                      <br />
+                      You can only attempt this quiz once. DO NOT REFRESH THE
+                      PAGE. If for some reason you lose connection to the quiz
+                      and must restart, contact the researcher to reactivate
+                      your account.
+                      <br />
+                      <br />
+                    </Typography>
+                    <DialogActions>
+                      <Button
+                        onClick={() => {
+                          setShowStartWarning(false);
+                        }}
+                        color="error"
+                        autoFocus
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          startMainQuiz();
+                        }}
+                      >
+                        Begin
+                      </Button>
+                    </DialogActions>
+                  </CardContent>
+                </Card>
+              </Box>
+            </Modal>
           </div>
         </div>
       </div>
