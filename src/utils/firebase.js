@@ -93,3 +93,14 @@ export const sendPasswordResetEmail = (email) =>
         );
     }
   });
+
+const setStatus = (accessCode, status) =>
+  updateDoc(getUserRef(accessCode), { status }).catch(() => {
+    throw Error("Error updating user");
+  });
+
+export const setStatusPracticed = (accessCode) =>
+  setStatus(accessCode, "practiced");
+
+export const setStatusStarted = (accessCode) =>
+  setStatus(accessCode, "started");

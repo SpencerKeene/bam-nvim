@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./quiz.css";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import pqArray from "./practiceQuizDatabase.js";
 
 import HomeIcon from "@mui/icons-material/Home";
@@ -11,6 +11,8 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import { useCountdownTimer } from "../components/CountdownTimer";
+import { setStatusPracticed } from "../utils/firebase";
+import { useGetUser } from "../hooks/firebase";
 
 const style = {
   position: "absolute",
@@ -25,6 +27,17 @@ const QUESTION_TIMER_DURATION = 30000;
 
 function App() {
   let navigate = useNavigate();
+  const location = useLocation();
+
+  // user
+  const accessCode = location.state?.accessCode;
+  const [user, error] = useGetUser(accessCode, true);
+
+  // redirect user if they don't exist
+  useEffect(() => {
+    if (error) navigate("..");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, error]);
 
   //practice quiz section
 
@@ -35,6 +48,14 @@ function App() {
   const [showHelp, setShowHelp] = useState(false);
   const handleCloseHelp = () => {
     setShowHelp(false);
+    startTimer();
+  };
+
+  //complete
+  const [hasCompleted, setHasCompleted] = useState(false);
+  const [showComplete, setShowComplete] = useState(false);
+  const handleCloseComplete = () => {
+    setShowComplete(false);
     startTimer();
   };
 
@@ -65,6 +86,11 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const markCompleted = () => {
+    setStatusPracticed(accessCode);
+    setHasCompleted(true);
+  };
+
   const handleClick = (isCorrect) => {
     stopTimer();
     //set scores
@@ -76,12 +102,19 @@ function App() {
     if (count < 2) {
       setCount(count + 1); //set count
       ansStorer(); //storeAnswers to prevent shuffle
+      startTimer();
     } else {
       setCount(0);
       ansStorer();
       setScore(0);
+
+      if (hasCompleted) {
+        startTimer();
+      } else {
+        markCompleted();
+        setShowComplete(true);
+      }
     }
-    startTimer();
   };
 
   function onTimerEnd() {
@@ -95,8 +128,7 @@ function App() {
       <Modal
         open={showHelp}
         onClose={handleCloseHelp}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
+        aria-labelledby="modal-help"
       >
         <Box sx={style}>
           <Card sx={{ maxWidth: 400, margin: "auto" }}>
@@ -111,6 +143,39 @@ function App() {
                 The last one, in the bottom right-hand corner, will be missing.
                 Select the answer which fits best.
                 <br />A 30 second timer will keep you on track.
+              </Typography>
+              <Typography
+                sx={{ fontSize: 14 }}
+                color="text.secondary"
+                gutterBottom
+              >
+                <br />
+                Click anywhere outside of this box to continue.
+                <br />
+                Click the Home button to return to the main menu.
+              </Typography>
+            </CardContent>
+          </Card>
+        </Box>
+      </Modal>
+
+      <Modal
+        open={showComplete}
+        onClose={handleCloseComplete}
+        aria-labelledby="modal-complete"
+      >
+        <Box sx={style}>
+          <Card sx={{ maxWidth: 400, margin: "auto" }}>
+            <CardContent>
+              <Typography variant="h5" component="div">
+                Completed Practice Test
+              </Typography>
+              <Typography variant="body2">
+                <br />
+                You have completed the practice test.
+                <br />
+                You can either continue practicing or back out to the main menu
+                to take the real test.
               </Typography>
               <Typography
                 sx={{ fontSize: 14 }}

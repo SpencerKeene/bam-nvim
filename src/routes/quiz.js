@@ -77,8 +77,8 @@ export default function Quiz() {
   };
 
   //stores correct/incorrect answers in array
-  const saveScore = (a) => {
-    setAnsArray([...ansArray, a]);
+  const saveScore = (isCorrect) => {
+    setAnsArray([...ansArray, isCorrect ? 1 : 0]);
   };
 
   const handleClick = (isCorrect) => {
@@ -90,9 +90,6 @@ export default function Quiz() {
       setCount(count + 1); //set count
       ansStorer(); //storeAnswers to prevent shuffle
     } else {
-      console.log("update", {
-        ansArray,
-      });
       postUserAnswers(accessCode, ansArray).then(() => {
         navigate("../complete"); //quiz is completed
       });

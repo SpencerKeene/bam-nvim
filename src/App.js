@@ -16,6 +16,15 @@ function App() {
   const [accessCode, setAccessCode] = useState("");
   const [message, setMessage] = useState("");
   const [user, error, loading, refresh] = useGetUser(accessCode);
+  const [pressedButton, setPressedButton] = useState("");
+
+  const startPracticeQuiz = () => {
+    navigate("../practice", { state: { accessCode } });
+  };
+
+  const startMainQuiz = () => {
+    navigate("../quiz", { state: { accessCode } });
+  };
 
   useEffect(() => {
     if (error) setMessage(error);
@@ -24,14 +33,29 @@ function App() {
   useEffect(() => {
     if (!user) return;
 
+    if (pressedButton === "practice") {
+      startPracticeQuiz();
+      return;
+    }
+
     switch (user.status) {
+      case "incomplete":
+        setMessage(
+          "You must complete the practice quiz before you can start the main quiz."
+        );
+        break;
+      case "practiced":
+        startMainQuiz();
+        break;
+      case "started":
+        setMessage(
+          "You must complete the quiz on your first attempt. Please contact the researcher to reactivate your account if an error occured during your attempt."
+        );
+        break;
       case "completed":
         setMessage(
           "You have already completed this quiz once. Please contact the researcher if you believe there is an issue."
         );
-        break;
-      case "incomplete":
-        navigate("../quiz", { state: { accessCode } });
         break;
       default:
         setMessage(
@@ -94,15 +118,17 @@ function App() {
               onChange={(e) => {
                 setAccessCode(e.target.value);
               }}
-              onKeyDown={handleKeyDown}
+              // onKeyDown={handleKeyDown}
             />
             <LoadingButton
-              variant="contained"
+              variant="outlined"
               sx={{ textTransform: "none" }}
               disableElevation
               onClick={() => {
-                navigate("../practice");
+                setPressedButton("practice");
+                refresh();
               }}
+              disabled={!accessCode}
             >
               Take Practice Test
             </LoadingButton>
@@ -111,7 +137,10 @@ function App() {
               loading={loading}
               sx={{ textTransform: "none" }}
               disableElevation
-              onClick={refresh}
+              onClick={() => {
+                setPressedButton("main");
+                refresh();
+              }}
               disabled={!accessCode}
             >
               Begin Test
