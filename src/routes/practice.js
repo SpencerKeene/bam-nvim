@@ -184,7 +184,7 @@ function App() {
                 gutterBottom
               >
                 <br />
-                Click anywhere outside of this box to continue.
+                Click anywhere outside of this box to continue practicing.
                 <br />
                 Click the Home button to return to the main menu.
               </Typography>
