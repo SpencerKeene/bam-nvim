@@ -9,7 +9,11 @@ import AddIcon from "@mui/icons-material/Add";
 import qArray from "./quizDatabase.js";
 import { useCountdownTimer } from "../components/CountdownTimer";
 import { useGetUser } from "../hooks/firebase";
-import { postUserAnswers, setStatusStarted } from "../utils/firebase";
+import {
+  postUserAnswers,
+  updateUserAnswers,
+  setStatusStarted,
+} from "../utils/firebase";
 
 // timer durations in milliseconds
 const QUESTION_TIMER_DURATION = 30000;
@@ -78,7 +82,9 @@ export default function Quiz() {
 
   //stores correct/incorrect answers in array
   const saveScore = (isCorrect) => {
-    setAnsArray([...ansArray, isCorrect ? 1 : 0]);
+    const newAnsArray = [...ansArray, isCorrect ? 1 : 0];
+    setAnsArray(newAnsArray);
+    updateUserAnswers(accessCode, newAnsArray);
   };
 
   const handleClick = (isCorrect) => {

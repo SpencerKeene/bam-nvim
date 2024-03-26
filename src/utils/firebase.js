@@ -36,6 +36,14 @@ export const postUserAnswers = (accessCode, answers) =>
       throw Error("Error updating user. Error code: " + err.code);
     });
 
+export const updateUserAnswers = (accessCode, answers) =>
+  setDoc(getUserResultsRef(accessCode), {
+    answers,
+    score: answers.reduce((sum, curr) => sum + (curr ? 1 : 0), 0),
+  }).catch((err) => {
+    throw Error("Error updating user. Error code: " + err.code);
+  });
+
 const setUserResults = (accessCode) =>
   setDoc(getUserResultsRef(accessCode), newResultsDoc());
 const setUser = (accessCode) => setDoc(getUserRef(accessCode), newUserDoc());
